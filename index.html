@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aura | Bio & Đăng Ký Cứu Acc</title>
+  <!-- Font & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    :root {
+      /* Bảng màu Vàng Kim - Xanh Ngọc đồng bộ với 2 ảnh */
+      --gold: #ffd166;
+      --gold-deep: #f59e0b;
+      --jade: #2ec4b6;
+      --jade-light: #64dfdf;
+      --glass-bg: rgba(10, 22, 28, 0.72);
+      --glass-border: rgba(255, 209, 102, 0.28);
+      --text-main: #ffffff;
+      --text-muted: #d1fae5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Quicksand', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      color: var(--text-main);
+      background-color: #081217;
+      overflow-x: hidden;
+      padding: 24px 16px 60px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    /* --- NỀN 2 ẢNH TRÁI - PHẢI --- */
+    .bg-split-wrapper {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      z-index: 0;
+      pointer-events: none;
+      /* --h: chiều cao ảnh (lớn hơn màn hình để có chỗ căn)
+         --face: vị trí mắt nhân vật tính từ mép trên màn hình */
+      --h: 115vh;
+      --face: 25.5vh;
+    }
+
+    .bg-half {
+      flex: 1;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-half img {
+      position: absolute;
+      height: var(--h);
+      width: calc(var(--h) * 16 / 9);
+      max-width: none;
+      display: block;
+    }
+
+    /* Căn để mắt 2 nhân vật nằm cùng độ cao, mỗi nhân vật ở giữa nửa màn hình của mình.
+       0.334 / 0.245 = vị trí mắt trên ảnh (tỉ lệ chiều cao); 0.48 / 0.515 = vị trí nhân vật theo chiều ngang */
+    .bg-left img {
+      top: calc(var(--face) - var(--h) * 0.334);
+      left: calc(50% - var(--h) * 16 / 9 * 0.48);
+    }
+    .bg-right img {
+      top: calc(var(--face) - var(--h) * 0.245);
+      left: calc(50% - var(--h) * 16 / 9 * 0.515);
+    }
+
+    /* Lớp phủ làm dịu & hòa trộn ranh giới giữa 2 ảnh */
+    .bg-split-wrapper::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at center, rgba(8, 20, 26, 0.58) 0%, rgba(8, 20, 26, 0.22) 100%),
+        linear-gradient(90deg, rgba(8,20,26,0.15) 0%, rgba(10,25,30,0.65) 50%, rgba(8,20,26,0.15) 100%);
+    }
+
+    /* Điện thoại dọc: xếp 2 ảnh trên - dưới, mỗi ảnh lấp đầy nửa màn hình */
+    @media (max-width: 768px) {
+      .bg-split-wrapper {
+        flex-direction: column;
+      }
+      .bg-half img {
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .bg-left img  { top: 0; left: 0; object-position: 48% 30%; }
+      .bg-right img { top: 0; left: 0; object-position: 52% 30%; }
+      .bg-split-wrapper::after {
+        background:
+          linear-gradient(180deg, rgba(8,20,26,0.2) 0%, rgba(10,25,30,0.65) 50%, rgba(8,20,26,0.25) 100%);
+      }
+    }
+
+    /* Canvas hiệu ứng đom đóm Vàng - Xanh Ngọc */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    /* Khung kính mờ Glassmorphism viền Vàng Kim */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.55), inset 0 0 20px rgba(46, 196, 182, 0.08);
+      animation: fadeSlide 0.35s ease;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* --- TRANG 1: PROFILE --- */
+    .profile-header {
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--gold);
+      box-shadow: 0 0 22px rgba(255, 209, 102, 0.55);
+      margin-bottom: 10px;
+      transition: transform 0.3s ease;
+    }
+
+    .avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--jade-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .profile-header p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+    }
+
+    /* Khung QR & Thông tin Ngân hàng */
+    .donate-box {
+      background: rgba(46, 196, 182, 0.08);
+      border: 1px dashed rgba(255, 209, 102, 0.42);
+      border-radius: 18px;
+      padding: 16px;
+      text-align: center;
+      margin-bottom: 18px;
+    }
+
+    .donate-title {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .donate-qr-img {
+      width: 175px;
+      height: 175px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: #ffffff;
+      padding: 6px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 4px 18px rgba(255, 209, 102, 0.25);
+      display: block;
+      margin: 0 auto 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .donate-qr-img:hover {
+      transform: scale(1.03);
+    }
+
+    .download-qr-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 10px;
+      background: rgba(46, 196, 182, 0.18);
+      border: 1px solid var(--jade-light);
+      color: var(--jade-light);
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: all 0.2s;
+    }
+
+    .download-qr-btn:hover {
+      background: linear-gradient(135deg, var(--jade), var(--gold-deep));
+      border-color: var(--gold);
+      color: #ffffff;
+    }
+
+    /* Chi tiết tài khoản ngân hàng (Canh giữa toàn bộ) */
+    .bank-details {
+      text-align: center;
+      background: rgba(6, 16, 20, 0.45);
+      border: 1px solid rgba(46, 196, 182, 0.28);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
+
+    .bank-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .bank-label {
+      color: var(--text-muted);
+    }
+
+    .bank-value {
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    /* Ô số tài khoản canh giữa + nút copy bên phải */
+    .acc-copy-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 209, 102, 0.08);
+      border: 1px solid rgba(255, 209, 102, 0.32);
+      border-radius: 10px;
+      padding: 6px 8px 6px 12px;
+    }
+
+    .acc-number {
+      font-weight: 700;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      color: var(--jade-light);
+    }
+
+    .copy-acc-btn {
+      background: linear-gradient(135deg, var(--gold-deep), var(--jade));
+      border: none;
+      color: #081217;
+      padding: 6px 11px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: transform 0.15s, filter 0.2s;
+    }
+
+    .copy-acc-btn:hover {
+      filter: brightness(1.1);
+    }
+
+    .copy-acc-btn:active {
+      transform: scale(0.93);
+    }
+
+    /* Trình phát nhạc Playlist */
+    .music-player {
+      background: rgba(46, 196, 182, 0.09);
+      border: 1px solid rgba(46, 196, 182, 0.3);
+      padding: 12px 14px;
+      border-radius: 16px;
+      margin-bottom: 18px;
+    }
+
+    .music-top {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .disc {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gold);
+      animation: spin 8s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .disc.playing {
+      animation-play-state: running;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .track-info {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .track-title {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--gold);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .track-artist {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .music-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .ctrl-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 209, 102, 0.35);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--gold);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .ctrl-btn:hover {
+      background: rgba(46, 196, 182, 0.3);
+      border-color: var(--jade-light);
+      color: #ffffff;
+    }
+
+    .play-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: linear-gradient(135deg, var(--gold), var(--jade));
+      color: #081217;
+      font-size: 0.95rem;
+    }
+
+    .play-btn:hover {
+      color: #081217;
+      filter: brightness(1.1);
+    }
+
+    /* Danh sách nút Social & Thanh công cụ */
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
+
+    .social-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 18px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(46, 196, 182, 0.14), rgba(255, 209, 102, 0.1));
+      border: 1px solid rgba(46, 196, 182, 0.38);
+      color: var(--text-main);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .social-btn i {
+      color: var(--gold);
+      font-size: 1.05rem;
+    }
+
+    .social-btn:hover {
+      background: linear-gradient(135deg, rgba(46, 196, 182, 0.3), rgba(255, 209, 102, 0.26));
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(46, 196, 182, 0.25);
+    }
+
+    .rescue-toggle-btn {
+      background: linear-gradient(135deg, rgba(255, 209, 102, 0.28), rgba(46, 196, 182, 0.32));
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .rescue-toggle-btn:hover {
+      background: linear-gradient(135deg, var(--gold-deep), var(--jade));
+      border-color: #ffffff;
+      color: #081217;
+    }
+
+    .rescue-toggle-btn:hover i {
+      color: #081217;
+    }
+
+    /* --- TRANG 2: ĐĂNG KÝ CỨU ACC --- */
+    .rescue-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 12px;
+      background: rgba(46, 196, 182, 0.16);
+      border: 1px solid var(--jade-light);
+      color: var(--jade-light);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 209, 102, 0.25);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      text-align: center;
+      color: var(--gold);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .input-group {
+      margin-bottom: 14px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(46, 196, 182, 0.35);
+      background: rgba(6, 16, 20, 0.55);
+      color: white;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    .input-group input:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(255, 209, 102, 0.2);
+    }
+
+    .options-label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .rescue-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(46, 196, 182, 0.08);
+      border: 1px solid rgba(46, 196, 182, 0.22);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 600;
+    }
+
+    .option-item:hover {
+      background: rgba(46, 196, 182, 0.16);
+    }
+
+    .option-item.selected {
+      background: rgba(255, 209, 102, 0.18);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .option-item input[type="checkbox"] {
+      accent-color: var(--gold-deep);
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, var(--gold), var(--jade));
+      color: #081217;
+      font-weight: 700;
+      font-size: 0.96rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: filter 0.2s, transform 0.15s;
+    }
+
+    .submit-btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* --- MODAL XEM / TẢI QR & LIGHTBOX FULL ẢNH --- */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 14, 18, 0.82);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal-box {
+      background: rgba(12, 28, 34, 0.95);
+      border: 1px solid var(--gold);
+      border-radius: 22px;
+      padding: 22px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .modal-box h3 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      color: var(--gold);
+    }
+
+    .modal-box p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 18px;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--glass-border);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .modal-btn-view {
+      background: rgba(46, 196, 182, 0.2);
+      border-color: var(--jade-light);
+      color: var(--jade-light);
+    }
+
+    .modal-btn-view:hover {
+      background: rgba(46, 196, 182, 0.35);
+      color: #ffffff;
+    }
+
+    .modal-btn-download {
+      background: linear-gradient(135deg, var(--gold), var(--jade));
+      border: none;
+      color: #081217;
+    }
+
+    .modal-btn-cancel {
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      font-size: 0.85rem;
+      margin-top: 4px;
+    }
+
+    /* Fullscreen Lightbox xem ảnh QR */
+    .lightbox-content {
+      position: relative;
+      max-width: 92vw;
+      max-height: 88vh;
+      text-align: center;
+    }
+
+    .lightbox-content img {
+      max-width: 100%;
+      max-height: 80vh;
+      border-radius: 16px;
+      background: #ffffff;
+      border: 3px solid var(--gold);
+      padding: 10px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.65);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-deep), var(--jade));
+      border: 2px solid #ffffff;
+      color: #081217;
+      font-weight: 700;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Cảnh báo trình duyệt In-App TikTok */
+    .tiktok-warning {
+      display: none;
+      background: rgba(255, 209, 102, 0.18);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nền 2 ảnh Trái - Phải -->
+  <div class="bg-split-wrapper">
+    <div class="bg-half bg-left"><img src="left.png" alt=""></div>
+    <div class="bg-half bg-right"><img src="right.jpg" alt=""></div>
+  </div>
+
+  <!-- Hiệu ứng đom đóm Vàng - Xanh Ngọc -->
+  <canvas id="particle-canvas"></canvas>
+
+  <div class="container">
+    
+    <!-- ==========================================
+         TRANG 1: PROFILE CÁ NHÂN
+         ========================================== -->
+    <div class="glass-card" id="profile-page">
+      <div id="tiktok-alert" class="tiktok-warning">
+        ⚠️ Bạn đang mở bằng TikTok. Hãy bấm dấu <b>•••</b> ở góc trên và chọn <b>"Mở bằng trình duyệt"</b> để tải QR & nghe nhạc mượt nhất nhé!
+      </div>
+
+      <div class="profile-header">
+        <img src="avbio.jpg" alt="Avatar" class="avatar" id="user-avatar">
+        <h1 id="display-name">Aura</h1>
+        <p>Creator • Gaming & Cứu Acc Uy Tín ✨</p>
+      </div>
+
+      <!-- Khung QR Donate & Thông tin Ngân hàng -->
+      <div class="donate-box">
+        <div class="donate-title">
+          <i class="fa-solid fa-crown"></i> Donate Ủng Hộ Mình Nhé
+        </div>
+
+        <!-- Ảnh QR cá nhân -->
+        <img id="qr-image" src="qrcanhan.jpg" onclick="openQROptionsModal()" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Techcombank-LeMinhDuc'" alt="QR Donate Cá Nhân" class="donate-qr-img">
+
+        <!-- Nút mở thông báo Xem hoặc Tải ảnh mã QR -->
+        <button type="button" class="download-qr-btn" onclick="openQROptionsModal()">
+          <i class="fa-solid fa-qrcode"></i> Tải ảnh mã QR
+        </button>
+
+        <!-- Thông tin ngân hàng Techcombank (Đã canh giữa toàn bộ) -->
+        <div class="bank-details">
+          <div class="bank-row">
+            <span class="bank-label">Ngân hàng:</span>
+            <span class="bank-value" style="color: var(--gold);">Techcombank</span>
+          </div>
+
+          <div class="bank-row">
+            <div class="acc-copy-box">
+              <span class="bank-label" style="font-size: 0.85rem;">Số TK:</span>
+              <span class="acc-number" id="bank-acc-num">1903 8825728013</span>
+              <button type="button" class="copy-acc-btn" id="copy-acc-btn" onclick="copyBankAccount()">
+                <i class="fa-regular fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+
+          <div class="bank-row">
+            <span class="bank-label">Tên tài khoản:</span>
+            <span class="bank-value">Lê Minh Đức</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thanh phát nhạc Playlist trang Profile -->
+      <div class="music-player">
+        <div class="music-top">
+          <img src="avbio.jpg" alt="Disc" class="disc" id="profile-disc">
+          <div class="track-info">
+            <div class="track-title" id="profile-track-title">Đang tải nhạc...</div>
+            <div class="track-artist" id="profile-track-status">Playlist Profile</div>
+          </div>
+        </div>
+        <div class="music-controls">
+          <button type="button" class="ctrl-btn" onclick="prevTrack()" title="Bài trước">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button type="button" class="ctrl-btn play-btn" onclick="togglePlay()" title="Phát / Tạm dừng">
+            <i class="fa-solid fa-play" id="profile-play-icon"></i>
+          </button>
+          <button type="button" class="ctrl-btn" onclick="nextTrack()" title="Bài tiếp theo">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+          <button type="button" class="ctrl-btn" onclick="toggleMute()" title="Bật / Tắt loa">
+            <i class="fa-solid fa-volume-high" id="profile-mute-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Các nút liên kết -->
+      <div class="social-links">
+        <a href="https://www.tiktok.com/@minhducle051" target="_blank" class="social-btn">
+          <i class="fa-brands fa-tiktok"></i> Kênh TikTok Chính Thức
+        </a>
+
+        <a href="https://discord.com/" target="_blank" class="social-btn">
+          <i class="fa-brands fa-discord"></i> Tham Gia Server Discord
+        </a>
+
+        <a href="https://zalo.me/0359620637" target="_blank" onclick="copyZalo('0359620637')" class="social-btn">
+          <i class="fa-solid fa-comment-dots"></i> Zalo: 0359.620.637
+        </a>
+
+        <a href="https://www.facebook.com/minhduc.le.961556" target="_blank" class="social-btn">
+          <i class="fa-brands fa-facebook"></i> Facebook Cá Nhân
+        </a>
+
+        <!-- Nút chuyển sang trang Đăng Ký Cứu Acc -->
+        <button type="button" class="social-btn rescue-toggle-btn" onclick="switchPage('rescue')">
+          <i class="fa-solid fa-gamepad"></i> Đăng Ký Cứu Acc
+        </button>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         TRANG 2: ĐĂNG KÝ CỨU ACC (CHỈ PHÁT NHẠC NỀN CỐ ĐỊNH, KHÔNG CÓ THANH PHÁT NHẠC)
+         ========================================== -->
+    <div class="glass-card hidden" id="rescue-page">
+      <!-- Nút quay lại Profile -->
+      <div class="rescue-top-bar">
+        <button type="button" class="back-btn" onclick="switchPage('profile')">
+          <i class="fa-solid fa-arrow-left"></i> Quay lại Profile
+        </button>
+        <span style="font-size: 0.8rem; color: var(--gold);">MLBB Support</span>
+      </div>
+
+      <div class="section-title">
+        <i class="fa-solid fa-shield-halved"></i> Đăng Ký Cứu Acc
+      </div>
+
+      <div class="input-group">
+        <label for="tiktok-id">Tên ID TikTok của bạn:</label>
+        <input type="text" id="tiktok-id" placeholder="VD: @minhducle051">
+      </div>
+
+      <div class="input-group">
+        <label for="moonton-email">Email Moonton:</label>
+        <input type="email" id="moonton-email" placeholder="VD: example@gmail.com">
+      </div>
+
+      <span class="options-label">Chọn các mục dưới đây:</span>
+      <div class="rescue-options">
+        <label class="option-item" id="opt-1">
+          <input type="checkbox" value="1. Cứu rank" onchange="toggleOptionStyle('opt-1', this)">
+          <span>1. Cứu rank</span>
+        </label>
+
+        <label class="option-item" id="opt-2">
+          <input type="checkbox" value="2. Cứu top tướng" onchange="toggleOptionStyle('opt-2', this)">
+          <span>2. Cứu top tướng</span>
+        </label>
+
+        <label class="option-item" id="opt-3">
+          <input type="checkbox" value="3. Rising (MRO)" onchange="toggleOptionStyle('opt-3', this)">
+          <span>3. Rising (MRO)</span>
+        </label>
+      </div>
+
+      <button type="button" class="submit-btn" id="submit-rescue-btn" onclick="submitToGoogleSheet()">
+        <i class="fa-regular fa-paper-plane"></i> GỬI YÊU CẦU
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ==========================================
+       MODAL THÔNG BÁO CHỌN XEM HOẶC TẢI ẢNH QR
+       ========================================== -->
+  <div class="modal-overlay hidden" id="qr-options-modal" onclick="closeQROptionsModal()">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <h3><i class="fa-solid fa-qrcode"></i> Mã QR Donate</h3>
+      <p>Bạn muốn xem phóng to hay tải ảnh mã QR về máy?</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn modal-btn-view" onclick="openFullQRLightbox()">
+          <i class="fa-solid fa-expand"></i> Xem full ảnh
+        </button>
+        <button type="button" class="modal-btn modal-btn-download" onclick="downloadQRFile()">
+          <i class="fa-solid fa-download"></i> Tải ảnh về máy
+        </button>
+        <button type="button" class="modal-btn modal-btn-cancel" onclick="closeQROptionsModal()">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       LIGHTBOX XEM FULL ẢNH QR
+       ========================================== -->
+  <div class="modal-overlay hidden" id="qr-lightbox" onclick="closeFullQRLightbox()">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <button type="button" class="lightbox-close" onclick="closeFullQRLightbox()" title="Đóng">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <img id="lightbox-qr-img" src="qrcanhan.jpg" alt="Full QR Donate">
+    </div>
+  </div>
+
+  <!-- Thẻ Audio dùng chung -->
+  <audio id="main-audio" autoplay preload="auto"></audio>
+
+  <script>
+    // ==========================================
+    // 1. CẤU HÌNH GOOGLE SHEET & PLAYLIST NHẠC
+    // ==========================================
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyVvqcBlbcIlf1ydq8DVn_2fVYF0DLxVSobYPybzTj7nOrPXHjq2mjyu-utAIzYzbji6w/exec";
+
+    // Playlist nhạc cho trang Profile
+    const PROFILE_PLAYLIST = [
+      { title: "徐梦圆 - China-O", src: "徐梦圆 - China-O.mp3" },
+      { title: "Nightcore - Vision pt. II", src: "Nightcore - Vision pt. II - (Lyrics).mp3" },
+      { title: "KPHK - FEVER FUNK (SLOWED)", src: "KPHK - FEVER FUNK (SLOWED).mp3" }
+    ];
+
+    // 1 bản nhạc nền cố định duy nhất cho trang Đăng Ký Cứu Acc
+    const RESCUE_FIXED_MUSIC = "Blue Bird (2022 ver.) - Naruto Shippuuden OP3 [Piano] Ikimono-gakari.mp3";
+
+    // ==========================================
+    // 2. XỬ LÝ MODAL XEM FULL ẢNH / TẢI ẢNH QR & COPY STK
+    // ==========================================
+    function openQROptionsModal() {
+      document.getElementById("qr-options-modal").classList.remove("hidden");
+    }
+
+    function closeQROptionsModal() {
+      document.getElementById("qr-options-modal").classList.add("hidden");
+    }
+
+    function openFullQRLightbox() {
+      closeQROptionsModal();
+      const qrSrc = document.getElementById("qr-image").src;
+      document.getElementById("lightbox-qr-img").src = qrSrc;
+      document.getElementById("qr-lightbox").classList.remove("hidden");
+    }
+
+    function closeFullQRLightbox() {
+      document.getElementById("qr-lightbox").classList.add("hidden");
+    }
+
+    function downloadQRFile() {
+      closeQROptionsModal();
+      const img = document.getElementById("qr-image");
+      const link = document.createElement("a");
+      link.href = img.src;
+      link.download = "qrcanhan.jpg";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function copyBankAccount() {
+      const accNum = document.getElementById("bank-acc-num").innerText.replace(/\s+/g, "");
+      const btn = document.getElementById("copy-acc-btn");
+      navigator.clipboard.writeText(accNum).then(() => {
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Đã chép';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="fa-regular fa-copy"></i> Copy';
+        }, 2000);
+      });
+    }
+
+    function copyZalo(phone) {
+      if (navigator.clipboard) navigator.clipboard.writeText(phone);
+    }
+
+   // ==========================================
+    // 3. QUẢN LÝ TRÌNH PHÁT NHẠC TỰ ĐỘNG & CHUYỂN TRANG
+    // ==========================================
+    const audio = document.getElementById("main-audio");
+    let currentMode = "profile";
+    let profileTrackIndex = 0;
+    let isMuted = false;
+    let autoPlayUnlocked = false;
+
+    // true khi nhạc đang chạy ngầm (tắt tiếng) vì trình duyệt chặn autoplay có tiếng
+    let mutedByAutoplay = false;
+
+    function loadProfileTrack(autoPlay = true) {
+      audio.loop = false;
+      const track = PROFILE_PLAYLIST[profileTrackIndex];
+      // encodeURI giúp trình duyệt đọc chính xác tên file có ký tự đặc biệt/tiếng Trung
+      audio.src = encodeURI(track.src);
+      document.getElementById("profile-track-title").innerText = track.title;
+      if (autoPlay) startPlayback();
+    }
+
+    // Thử phát có tiếng -> nếu bị chặn thì phát tắt tiếng -> chờ cử chỉ đầu tiên để bật tiếng
+    function startPlayback() {
+      audio.muted = isMuted;
+      const p = audio.play();
+      if (!p || !p.then) return;
+      p.then(() => {
+        mutedByAutoplay = false;
+        autoPlayUnlocked = true;
+        removeUnlockListeners();
+        if (currentMode === "profile") updateProfilePlayerUI(true);
+      }).catch(() => {
+        // Autoplay có tiếng bị chặn: phát ngầm (muted) để nhạc bắt đầu ngay
+        audio.muted = true;
+        const p2 = audio.play();
+        const onMutedOk = () => {
+          mutedByAutoplay = !isMuted;
+          if (currentMode === "profile") {
+            updateProfilePlayerUI(true);
+            document.getElementById("profile-track-status").innerText = "Chạm màn hình để bật tiếng 🔊";
+          }
+        };
+        const onFail = () => {
+          mutedByAutoplay = false;
+          if (currentMode === "profile") {
+            updateProfilePlayerUI(false);
+            document.getElementById("profile-track-status").innerText = "Chạm vào trang để phát nhạc";
+          }
+        };
+        if (p2 && p2.then) p2.then(onMutedOk).catch(onFail); else onMutedOk();
+      });
+    }
+
+    function updateProfilePlayerUI(isPlaying) {
+      const icon = document.getElementById("profile-play-icon");
+      const disc = document.getElementById("profile-disc");
+      const status = document.getElementById("profile-track-status");
+
+      if (isPlaying) {
+        icon.classList.replace("fa-play", "fa-pause");
+        disc.classList.add("playing");
+        if (!audio.muted) {
+          status.innerText = `Bài ${profileTrackIndex + 1}/${PROFILE_PLAYLIST.length} • Đang phát`;
+        }
+      } else {
+        icon.classList.replace("fa-pause", "fa-play");
+        disc.classList.remove("playing");
+        status.innerText = `Bài ${profileTrackIndex + 1}/${PROFILE_PLAYLIST.length} • Tạm dừng`;
+      }
+    }
+
+    function togglePlay() {
+      autoPlayUnlocked = true;
+      // Đang chạy ngầm (muted) -> bấm lần đầu chỉ bật tiếng, không tạm dừng
+      if (mutedByAutoplay && !audio.paused) {
+        mutedByAutoplay = false;
+        audio.muted = isMuted;
+        updateProfilePlayerUI(true);
+        return;
+      }
+      if (audio.paused) {
+        audio.muted = isMuted;
+        audio.play().then(() => updateProfilePlayerUI(true)).catch(() => {});
+      } else {
+        audio.pause();
+        updateProfilePlayerUI(false);
+      }
+    }
+
+    function nextTrack() {
+      autoPlayUnlocked = true;
+      audio.muted = isMuted;
+      profileTrackIndex = (profileTrackIndex + 1) % PROFILE_PLAYLIST.length;
+      loadProfileTrack(true);
+    }
+
+    function prevTrack() {
+      autoPlayUnlocked = true;
+      audio.muted = isMuted;
+      profileTrackIndex = (profileTrackIndex - 1 + PROFILE_PLAYLIST.length) % PROFILE_PLAYLIST.length;
+      loadProfileTrack(true);
+    }
+
+    function toggleMute() {
+      autoPlayUnlocked = true;
+      isMuted = !isMuted;
+      audio.muted = isMuted;
+      const muteIcon = document.getElementById("profile-mute-icon");
+      if (isMuted) {
+        muteIcon.classList.replace("fa-volume-high", "fa-volume-xmark");
+      } else {
+        muteIcon.classList.replace("fa-volume-xmark", "fa-volume-high");
+        if (!audio.paused) updateProfilePlayerUI(true);
+      }
+    }
+
+    audio.addEventListener("ended", () => {
+      if (currentMode === "profile") {
+        nextTrack();
+      }
+    });
+
+    function switchPage(targetPage) {
+      autoPlayUnlocked = true;
+      const profilePage = document.getElementById("profile-page");
+      const rescuePage = document.getElementById("rescue-page");
+
+      if (targetPage === "rescue") {
+        profilePage.classList.add("hidden");
+        rescuePage.classList.remove("hidden");
+        currentMode = "rescue";
+
+        audio.src = encodeURI(RESCUE_FIXED_MUSIC);
+        audio.loop = true;
+        startPlayback();
+      } else {
+        rescuePage.classList.add("hidden");
+        profilePage.classList.remove("hidden");
+        currentMode = "profile";
+        loadProfileTrack(true);
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Mở tiếng / phát nhạc ở cử chỉ hợp lệ đầu tiên của người dùng.
+    // Lưu ý: "scroll" và "touchstart" KHÔNG được trình duyệt tính là cử chỉ hợp lệ để phát âm thanh,
+    // nên chỉ dùng pointerdown / touchend / click / keydown và chỉ gỡ listener khi nhạc đã thật sự có tiếng.
+    const UNLOCK_EVENTS = ["pointerdown", "touchend", "click", "keydown"];
+
+    function removeUnlockListeners() {
+      UNLOCK_EVENTS.forEach(evt => window.removeEventListener(evt, unlockAudioOnFirstInteraction));
+    }
+
+    function unlockAudioOnFirstInteraction() {
+      audio.muted = isMuted;
+      if (audio.paused) {
+        audio.play().then(() => {
+          mutedByAutoplay = false;
+          autoPlayUnlocked = true;
+          if (currentMode === "profile") updateProfilePlayerUI(true);
+          removeUnlockListeners();
+        }).catch(() => {}); // giữ listener để thử lại ở lần chạm sau
+      } else {
+        mutedByAutoplay = false;
+        autoPlayUnlocked = true;
+        if (currentMode === "profile") updateProfilePlayerUI(true);
+        removeUnlockListeners();
+      }
+    }
+
+    UNLOCK_EVENTS.forEach(evt => {
+      window.addEventListener(evt, unlockAudioOnFirstInteraction, { passive: true });
+    });
+
+    // Thử phát lại khi trang được khôi phục từ cache (nút Back / reload mềm trên mobile)
+    window.addEventListener("pageshow", (e) => {
+      if (e.persisted && audio.paused && currentMode === "profile") startPlayback();
+    });
+
+    // ==========================================
+    // 4. FORM ĐĂNG KÝ CỨU ACC & GỬI LÊN GOOGLE SHEET
+    // ==========================================
+    function toggleOptionStyle(labelId, checkbox) {
+      document.getElementById(labelId).classList.toggle("selected", checkbox.checked);
+    }
+
+    async function submitToGoogleSheet() {
+      const tiktokId = document.getElementById("tiktok-id").value.trim();
+      const email = document.getElementById("moonton-email").value.trim();
+      const checkedOptions = Array.from(document.querySelectorAll('.rescue-options input[type="checkbox"]:checked'))
+        .map(cb => cb.value);
+
+      if (!tiktokId) {
+        alert("Vui lòng nhập Tên ID TikTok của bạn!");
+        document.getElementById("tiktok-id").focus();
+        return;
+      }
+      if (!email) {
+        alert("Vui lòng nhập Email Moonton!");
+        document.getElementById("moonton-email").focus();
+        return;
+      }
+      if (checkedOptions.length === 0) {
+        alert("Vui lòng chọn ít nhất 1 mục cứu acc!");
+        return;
+      }
+
+      const submitBtn = document.getElementById("submit-rescue-btn");
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ĐANG GỬI DỮ LIỆU...';
+
+      const payload = {
+        tiktokId: tiktokId,
+        emailMoonton: email,
+        services: checkedOptions.join(", ")
+      };
+
+      try {
+        await fetch(GOOGLE_SHEET_URL, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        alert("✅ Gửi yêu cầu thành công! Dữ liệu của bạn đã được lưu vào hệ thống.");
+        document.getElementById("tiktok-id").value = "";
+        document.getElementById("moonton-email").value = "";
+        document.querySelectorAll('.rescue-options input[type="checkbox"]').forEach(cb => {
+          cb.checked = false;
+          cb.parentElement.classList.remove("selected");
+        });
+      } catch (error) {
+        alert("❌ Có lỗi xảy ra khi gửi dữ liệu, vui lòng thử lại sau!");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-regular fa-paper-plane"></i> GỬI YÊU CẦU';
+      }
+    }
+
+    // ==========================================
+    // 5. HIỆU ỨNG ĐOM ĐÓM VÀNG - XANH NGỌC
+    // ==========================================
+    if (/BytedanceWebview|TikTok/i.test(navigator.userAgent)) {
+      document.getElementById("tiktok-alert").style.display = "block";
+    }
+
+    const canvas = document.getElementById("particle-canvas");
+    const ctx = canvas.getContext("2d");
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    const colors = ["rgba(255, 209, 102, 0.75)", "rgba(46, 196, 182, 0.75)"];
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2.8 + 1.2,
+        speedY: Math.random() * 0.7 + 0.25,
+        speedX: Math.random() * 0.6 - 0.3,
+        color: colors[i % 2]
+      });
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => {
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        p.y -= p.speedY; // Bay nhẹ lên như đom đóm linh khí
+        p.x += p.speedX;
+        if (p.y < -5) {
+          p.y = canvas.height + 5;
+          p.x = Math.random() * canvas.width;
+        }
+      });
+      requestAnimationFrame(animateParticles);
+    }
+
+    loadProfileTrack(true);
+    animateParticles();
+  </script>
+</body>
+</html>
