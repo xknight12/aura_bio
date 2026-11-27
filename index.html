@@ -189,7 +189,7 @@
       border-radius: 18px;
       padding: 16px;
       text-align: center;
-      margin-bottom: 18px;
+      margin-top: 18px;
     }
 
     .donate-title {
@@ -774,44 +774,6 @@
         <p>Creator • Gaming & Cứu Acc Uy Tín ✨</p>
       </div>
 
-      <!-- Khung QR Donate & Thông tin Ngân hàng -->
-      <div class="donate-box">
-        <div class="donate-title">
-          <i class="fa-solid fa-crown"></i> Donate Ủng Hộ Mình Nhé
-        </div>
-
-        <!-- Ảnh QR cá nhân -->
-        <img id="qr-image" src="qrcanhan.jpg" onclick="openQROptionsModal()" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Techcombank-LeMinhDuc'" alt="QR Donate Cá Nhân" class="donate-qr-img">
-
-        <!-- Nút mở thông báo Xem hoặc Tải ảnh mã QR -->
-        <button type="button" class="download-qr-btn" onclick="openQROptionsModal()">
-          <i class="fa-solid fa-qrcode"></i> Tải ảnh mã QR
-        </button>
-
-        <!-- Thông tin ngân hàng Techcombank (Đã canh giữa toàn bộ) -->
-        <div class="bank-details">
-          <div class="bank-row">
-            <span class="bank-label">Ngân hàng:</span>
-            <span class="bank-value" style="color: var(--gold);">Techcombank</span>
-          </div>
-
-          <div class="bank-row">
-            <div class="acc-copy-box">
-              <span class="bank-label" style="font-size: 0.85rem;">Số TK:</span>
-              <span class="acc-number" id="bank-acc-num">1903 8825728013</span>
-              <button type="button" class="copy-acc-btn" id="copy-acc-btn" onclick="copyBankAccount()">
-                <i class="fa-regular fa-copy"></i> Copy
-              </button>
-            </div>
-          </div>
-
-          <div class="bank-row">
-            <span class="bank-label">Tên tài khoản:</span>
-            <span class="bank-value">Lê Minh Đức</span>
-          </div>
-        </div>
-      </div>
-
       <!-- Thanh phát nhạc Playlist trang Profile -->
       <div class="music-player">
         <div class="music-top">
@@ -860,7 +822,45 @@
           <i class="fa-solid fa-gamepad"></i> Đăng Ký Cứu Acc
         </button>
       </div>
+      <!-- Khung QR Donate & Thông tin Ngân hàng -->
+      <div class="donate-box">
+        <div class="donate-title">
+          <i class="fa-solid fa-crown"></i> Donate Ủng Hộ Mình Nhé
+        </div>
+
+        <!-- Ảnh QR cá nhân -->
+        <img id="qr-image" src="qrcanhan.jpg" onclick="openQROptionsModal()" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Techcombank-LeMinhDuc'" alt="QR Donate Cá Nhân" class="donate-qr-img">
+
+        <!-- Nút mở thông báo Xem hoặc Tải ảnh mã QR -->
+        <button type="button" class="download-qr-btn" onclick="openQROptionsModal()">
+          <i class="fa-solid fa-qrcode"></i> Tải ảnh mã QR
+        </button>
+
+        <!-- Thông tin ngân hàng Techcombank (Đã canh giữa toàn bộ) -->
+        <div class="bank-details">
+          <div class="bank-row">
+            <span class="bank-label">Ngân hàng:</span>
+            <span class="bank-value" style="color: var(--gold);">Techcombank</span>
+          </div>
+
+          <div class="bank-row">
+            <div class="acc-copy-box">
+              <span class="bank-label" style="font-size: 0.85rem;">Số TK:</span>
+              <span class="acc-number" id="bank-acc-num">1903 8825728013</span>
+              <button type="button" class="copy-acc-btn" id="copy-acc-btn" onclick="copyBankAccount()">
+                <i class="fa-regular fa-copy"></i> Copy
+              </button>
+            </div>
+          </div>
+
+          <div class="bank-row">
+            <span class="bank-label">Tên tài khoản:</span>
+            <span class="bank-value">Lê Minh Đức</span>
+          </div>
+        </div>
+      </div>
     </div>
+    
 
     <!-- ==========================================
          TRANG 2: ĐĂNG KÝ CỨU ACC (CHỈ PHÁT NHẠC NỀN CỐ ĐỊNH, KHÔNG CÓ THANH PHÁT NHẠC)
